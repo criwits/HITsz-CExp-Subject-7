@@ -14,7 +14,7 @@
 #define NMAX 25
 #define CMAX 6
 
-/** DATABASE 类型体，用于存储学生学号（int）和分数（float）**/
+
 typedef struct database
 {
     char cName[NMAX];
@@ -284,12 +284,312 @@ void SortByS(_Bool (*comparing)(float a, float b))
     ListRecord(dataSorted);
     return;
 }
+
+void SortInAByID()
+{
+    if (!iIsRecorded)
+    {
+        printf("[ERROR]Please use (1) to input record first!\n\n");
+        return;
+    }
+    int i, j;
+    DATABASE dataTemp;
+    DATABASE dataSorted[iStudentNumber + 1];
+    memcpy(dataSorted, dataList, sizeof(dataSorted));
+    for (i = 1; i < iStudentNumber; i++)
+    {
+        for (j = i + 1; j <= iStudentNumber; j++)
+        {
+            if (dataSorted[j].iStudentID < dataSorted[i].iStudentID)
+            {
+                dataTemp = dataSorted[j];
+                dataSorted[j] = dataSorted[i];
+                dataSorted[i] = dataTemp;
+            }
+        }
+    }
+    ListRecord(dataSorted);
+    return;
+}
+
+void SortByName()
+{
+    if (!iIsRecorded)
+    {
+        printf("[ERROR]Please use (1) to input record first!\n\n");
+        return;
+    }
+    int i, j;
+    DATABASE dataSorted[iStudentNumber + 1];
+    memcpy(dataSorted, dataList, sizeof(dataSorted));
+    for (i = 1; i < iStudentNumber; i++)
+    {
+        for (j = i + 1; j <= iStudentNumber; j++)
+        {
+            RecursionSortName(&dataSorted[j], &dataSorted[i], 0);
+        }
+    }
+    ListRecord(dataSorted);
+    return;
+}
+
+void SearchByID()
+{
+    if (!iIsRecorded)
+    {
+        printf("[ERROR]Please use (1) to input record first!\n\n");
+        return;
+    }
+    int iInputID, iIsScanf = 1;
+    printf("[ HINT]Enter the ID you want to search: ");
+    do
+    {
+        fflush(stdin);
+        if (!iIsScanf)
+            printf("[ERROR]Not a proper input, please try again: ");
+        iIsScanf = scanf("%d", &iInputID);
+    } while (!iIsScanf);
+
+    int i, j;
+    DATABASE dataTemp;
+    DATABASE dataSorted[iStudentNumber + 1];
+    memcpy(dataSorted, dataList, sizeof(dataSorted));
+    for (i = 1; i < iStudentNumber; i++)
+    {
+        for (j = i + 1; j <= iStudentNumber; j++)
+        {
+            if (GetTotal(dataSorted[j].fScore, iSubjects) > GetTotal(dataSorted[i].fScore, iSubjects))
+            {
+                dataTemp = dataSorted[j];
+                dataSorted[j] = dataSorted[i];
+                dataSorted[i] = dataTemp;
+            }
+        }
+    }
+
+    dataSorted[1].iRanking = 1;
+    for (i = 2; i <= iStudentNumber; i++)
+    {
+        if (fabs(GetTotal(dataSorted[i].fScore, iSubjects) - GetTotal(dataSorted[i - 1].fScore, iSubjects)) < 1e-3)
+        {
+            dataSorted[i].iRanking = dataSorted[i - 1].iRanking;
+        }
+        else
+        {
+            dataSorted[i].iRanking = i;
+        }
+    }
+
+    for (i = 1; i <= iStudentNumber; ++i)
+    {
+        if (iInputID == dataSorted[i].iStudentID)
+        {
+            printf("[ INFO]Here is the result: \n");
+            printf(" StudentID             Name          ");
+            for (j = 0; j < iSubjects; j++)
+                printf("Score%2d   ", j + 1);
+            printf("Total     Average    ");
+            printf("\n");
+            for (j = 0; j < iSubjects; j++)
+                printf("=========");
+            printf("============================================================\n");
+            printf(" %-22d%-14s", dataSorted[i].iStudentID, dataSorted[i].cName);
+            for (j = 0; j < iSubjects; j++)
+                printf("%-10.2f", dataSorted[i].fScore[j]);
+            printf("%-10.2f%-10.2f", GetTotal(dataSorted[i].fScore, iSubjects), GetAverage(dataSorted[i].fScore, iSubjects));
+            printf("\n");
+            printf("\n[ INFO]Successfully listed the data of one student.\n\n");
+            return;
+        }
+    }
+    printf("[ERROR]Can't find the student with given ID!\n\n");
+    return;
+}
+
+void SearchByName()
+{
+    if (!iIsRecorded)
+    {
+        printf("[ERROR]Please use (1) to input record first!\n\n");
+        return;
+    }
+    char cInputName[NMAX];
+    printf("[ HINT]Enter the name you want to search: ");
+    fflush(stdin);
+    gets(cInputName);
+    int i, j;
+    DATABASE dataTemp;
+    DATABASE dataSorted[iStudentNumber + 1];
+    memcpy(dataSorted, dataList, sizeof(dataSorted));
+    for (i = 1; i < iStudentNumber; i++)
+    {
+        for (j = i + 1; j <= iStudentNumber; j++)
+        {
+            if (GetTotal(dataSorted[j].fScore, iSubjects) > GetTotal(dataSorted[i].fScore, iSubjects))
+            {
+                dataTemp = dataSorted[j];
+                dataSorted[j] = dataSorted[i];
+                dataSorted[i] = dataTemp;
+            }
+        }
+    }
+    dataSorted[1].iRanking = 1;
+    for (i = 2; i <= iStudentNumber; i++)
+    {
+        if (fabs(GetTotal(dataSorted[i].fScore, iSubjects) - GetTotal(dataSorted[i - 1].fScore, iSubjects)) < 1e-3)
+        {
+            dataSorted[i].iRanking = dataSorted[i - 1].iRanking;
+        }
+        else
+        {
+            dataSorted[i].iRanking = i;
+        }
+    }
+
+    for (i = 1; i <= iStudentNumber; ++i)
+    {
+        if (!strcmp(cInputName, dataSorted[i].cName))
+        {
+            printf("[ INFO]Here is the result: \n");
+            printf(" StudentID             Name          ");
+            for (j = 0; j < iSubjects; j++)
+                printf("Score%2d   ", j + 1);
+            printf("Total     Average    ");
+            printf("\n");
+            for (j = 0; j < iSubjects; j++)
+                printf("=========");
+            printf("============================================================\n");
+            printf(" %-22d%-14s", dataSorted[i].iStudentID, dataSorted[i].cName);
+            for (j = 0; j < iSubjects; j++)
+                printf("%-10.2f", dataSorted[i].fScore[j]);
+            printf("%-10.2f%-10.2f", GetTotal(dataSorted[i].fScore, iSubjects), GetAverage(dataSorted[i].fScore, iSubjects));
+            printf("\n");
+            printf("\n[ INFO]Successfully listed the data of one student.\n\n");
+            return;
+        }
+    }
+    printf("[ERROR]Can't find the student with given name.\n\n");
+    return;
+}
+
+void StatisticAnalysis()
+{
+    if (!iIsRecorded)
+    {
+        printf("[ERROR]Please use (1) to input record first!\n\n");
+        return;
+    }
+    int iSubjectNum[iSubjects][5];
+    int i, j;
+    memset(iSubjectNum, 0, sizeof(iSubjectNum));
+    for (i = 1; i <= iStudentNumber; ++i)
+    {
+        for (j = 0; j < iSubjects; j++)
+        {
+            if (dataList[i].fScore[j] >= 90)
+                iSubjectNum[j][0]++;
+            else if (dataList[i].fScore[j] >= 80)
+                iSubjectNum[j][1]++;
+            else if (dataList[i].fScore[j] >= 70)
+                iSubjectNum[j][2]++;
+            else if (dataList[i].fScore[j] >= 60)
+                iSubjectNum[j][3]++;
+            else
+                iSubjectNum[j][4]++;
+        }
+    }
+    printf(" Subject No.      Exce(>=90)        Good[80,90)       So-so[70,80)      Passed[60,70)     Failed(<60)\n");
+    printf("================================================================================================================\n");
+    for (i = 0; i < iSubjects; i++)
+    {
+        printf(" %-17d", i + 1);
+        for (j = 0; j <= 4; j++)
+            printf("%-10d%5.2f%%  ", iSubjectNum[i][j], iSubjectNum[i][j] * 100 / (float)iStudentNumber);
+        printf("\n");
+    }
+    printf("\n[ INFO]Successfully listed data of all subjects!\n\n");
+    return;
+}
+
 int main(void)
 {
-    InputRecord();
-    ListRecord(dataList);
-    CalculateSingleCourseTAndA();
-    CalculateSingleStudentTAndA();
-    SortByS(Descending);
-    SortByS(Ascending);
+
+    int iChoice, iIsScanf = 1;
+    do
+    {
+        printf("1. Input record\n"
+"2. List record\n"
+"3. Calculate total and average score of every course\n"
+"4. Calculate total and average score of every student\n"
+"5. Sort in descending order by total score of every student\n"
+"6. Sort in ascending order by total score of every student\n"
+"7. Sort in ascending order by StudentID\n"
+"8. Sort in dictionary order by name\n"
+"9. Search by StudentID\n"
+"10.Search by name\n"
+"11.Statistic analysis for every course\n"
+"0. Exit\n");
+        printf("Please enter your choice: ");
+        do
+        {
+            fflush(stdin);
+            if (!iIsScanf)
+                printf("[ERROR]Not a proper input, please try again: ");
+            iIsScanf = scanf("%d", &iChoice);
+        } while (!iIsScanf);
+        switch (iChoice)
+        {
+        case 1:
+            printf("\n");
+            InputRecord();
+            break;
+        case 2:
+            printf("\n");
+            ListRecord(dataList);
+            break;
+        case 3:
+            printf("\n");
+            CalculateSingleCourseTAndA();
+            break;
+        case 4:
+            printf("\n");
+            CalculateSingleStudentTAndA();
+            break;
+        case 5:
+            printf("\n");
+            SortByS(Descending);
+            break;
+        case 6:
+            printf("\n");
+            SortByS(Ascending);
+            break;
+        case 7:
+            printf("\n");
+            SortInAByID();
+            break;
+        case 8:
+            printf("\n");
+            SortByName();
+            break;
+        case 9:
+            printf("\n");
+            SearchByID();
+            break;
+        case 10:
+            printf("\n");
+            SearchByName();
+            break;
+        case 11:
+            printf("\n");
+            StatisticAnalysis();
+            break;
+        case 0:
+            return 0;
+            break;
+        default:
+            printf("\n[ERROR]Not a proper choice!\n\n");
+            break;
+        }
+    } while (1);
+    return 0;
 }
