@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1604575067 source:d:\github\hitsz-cexp-subject-7\main.c
+1604651429 source:d:\github\hitsz-cexp-subject-7\main.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>

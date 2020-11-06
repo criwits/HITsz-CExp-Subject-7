@@ -33,6 +33,7 @@ int iSubjects = 1;
 DATABASE dataList[MAX + 1];
 //创建学生成绩数据库。
 
+//总分计算函数。
 float GetTotal(float *array, int n)
 {
     int i;
@@ -42,6 +43,7 @@ float GetTotal(float *array, int n)
     return fTotal;
 }
 
+//平均分计算函数。
 float GetAverage(float *array, int n)
 {
     return GetTotal(array, n) / n;
@@ -213,7 +215,7 @@ void ListRecord(DATABASE *m)
     printf("\n[ INFO]Successfully listed data of %d students!\n\n", iStudentNumber);
     return;
 }
-
+//计算单科目情况
 void CalculateSingleCourseTAndA()
 {
     if (!iIsRecorded)
@@ -235,7 +237,7 @@ void CalculateSingleCourseTAndA()
     printf("\n[ INFO]Successfully listed data of %d subjects!\n", iSubjects);
     return;
 }
-
+//计算单个学生分数情况
 void CalculateSingleStudentTAndA()
 {
     if (!iIsRecorded)
@@ -284,7 +286,7 @@ void SortByS(_Bool (*comparing)(float a, float b))
     ListRecord(dataSorted);
     return;
 }
-
+//按 ID 排序。
 void SortInAByID()
 {
     if (!iIsRecorded)
@@ -311,7 +313,7 @@ void SortInAByID()
     ListRecord(dataSorted);
     return;
 }
-
+//按姓名排序。
 void SortByName()
 {
     if (!iIsRecorded)
@@ -333,6 +335,8 @@ void SortByName()
     return;
 }
 
+
+//按学号查找。
 void SearchByID()
 {
     if (!iIsRecorded)
@@ -349,7 +353,7 @@ void SearchByID()
             printf("[ERROR]Not a proper input, please try again: ");
         iIsScanf = scanf("%d", &iInputID);
     } while (!iIsScanf);
-
+    //排序以得到排名值。
     int i, j;
     DATABASE dataTemp;
     DATABASE dataSorted[iStudentNumber + 1];
@@ -366,7 +370,7 @@ void SearchByID()
             }
         }
     }
-
+    /** 获取排名值：如果分数跟前一个人一样，那么 TA 的排名就和前一个人一样。 **/
     dataSorted[1].iRanking = 1;
     for (i = 2; i <= iStudentNumber; i++)
     {
@@ -388,15 +392,15 @@ void SearchByID()
             printf(" StudentID             Name          ");
             for (j = 0; j < iSubjects; j++)
                 printf("Score%2d   ", j + 1);
-            printf("Total     Average    ");
+            printf("Total     Average    Ranking");
             printf("\n");
             for (j = 0; j < iSubjects; j++)
                 printf("=========");
-            printf("============================================================\n");
+            printf("======================================================================\n");
             printf(" %-22d%-14s", dataSorted[i].iStudentID, dataSorted[i].cName);
             for (j = 0; j < iSubjects; j++)
                 printf("%-10.2f", dataSorted[i].fScore[j]);
-            printf("%-10.2f%-10.2f", GetTotal(dataSorted[i].fScore, iSubjects), GetAverage(dataSorted[i].fScore, iSubjects));
+            printf("%-10.2f%-11.2f%-3d", GetTotal(dataSorted[i].fScore, iSubjects), GetAverage(dataSorted[i].fScore, iSubjects), dataSorted[i].iRanking);
             printf("\n");
             printf("\n[ INFO]Successfully listed the data of one student.\n\n");
             return;
@@ -405,7 +409,7 @@ void SearchByID()
     printf("[ERROR]Can't find the student with given ID!\n\n");
     return;
 }
-
+//按名字查找。
 void SearchByName()
 {
     if (!iIsRecorded)
@@ -454,15 +458,15 @@ void SearchByName()
             printf(" StudentID             Name          ");
             for (j = 0; j < iSubjects; j++)
                 printf("Score%2d   ", j + 1);
-            printf("Total     Average    ");
+            printf("Total     Average    Ranking");
             printf("\n");
             for (j = 0; j < iSubjects; j++)
                 printf("=========");
-            printf("============================================================\n");
+            printf("======================================================================\n");
             printf(" %-22d%-14s", dataSorted[i].iStudentID, dataSorted[i].cName);
             for (j = 0; j < iSubjects; j++)
                 printf("%-10.2f", dataSorted[i].fScore[j]);
-            printf("%-10.2f%-10.2f", GetTotal(dataSorted[i].fScore, iSubjects), GetAverage(dataSorted[i].fScore, iSubjects));
+            printf("%-10.2f%-11.2f%-3d", GetTotal(dataSorted[i].fScore, iSubjects), GetAverage(dataSorted[i].fScore, iSubjects), dataSorted[i].iRanking);
             printf("\n");
             printf("\n[ INFO]Successfully listed the data of one student.\n\n");
             return;
@@ -471,7 +475,7 @@ void SearchByName()
     printf("[ERROR]Can't find the student with given name.\n\n");
     return;
 }
-
+//统计分析。
 void StatisticAnalysis()
 {
     if (!iIsRecorded)
@@ -479,6 +483,7 @@ void StatisticAnalysis()
         printf("[ERROR]Please use (1) to input record first!\n\n");
         return;
     }
+    //0 — 5 分别指 优秀、良好、一般、及格、不及格。
     int iSubjectNum[iSubjects][5];
     int i, j;
     memset(iSubjectNum, 0, sizeof(iSubjectNum));
@@ -504,7 +509,7 @@ void StatisticAnalysis()
     {
         printf(" %-17d", i + 1);
         for (j = 0; j <= 4; j++)
-            printf("%-10d%5.2f%%  ", iSubjectNum[i][j], iSubjectNum[i][j] * 100 / (float)iStudentNumber);
+            printf("%-10d%5.2f%% |", iSubjectNum[i][j], iSubjectNum[i][j] * 100 / (float)iStudentNumber);
         printf("\n");
     }
     printf("\n[ INFO]Successfully listed data of all subjects!\n\n");
@@ -518,18 +523,18 @@ int main(void)
     do
     {
         printf("1. Input record\n"
-"2. List record\n"
-"3. Calculate total and average score of every course\n"
-"4. Calculate total and average score of every student\n"
-"5. Sort in descending order by total score of every student\n"
-"6. Sort in ascending order by total score of every student\n"
-"7. Sort in ascending order by StudentID\n"
-"8. Sort in dictionary order by name\n"
-"9. Search by StudentID\n"
-"10.Search by name\n"
-"11.Statistic analysis for every course\n"
-"0. Exit\n");
-        printf("Please enter your choice: ");
+               "2. List record\n"
+               "3. Calculate total and average score of every course\n"
+               "4. Calculate total and average score of every student\n"
+               "5. Sort in descending order by total score of every student\n"
+               "6. Sort in ascending order by total score of every student\n"
+               "7. Sort in ascending order by StudentID\n"
+               "8. Sort in dictionary order by name\n"
+               "9. Search by StudentID\n"
+               "10.Search by name\n"
+               "11.Statistic analysis for every course\n"
+               "0. Exit\n");
+        printf("[ HINT]Please enter your choice: ");
         do
         {
             fflush(stdin);
